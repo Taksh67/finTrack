@@ -117,7 +117,18 @@ class _ExpenseListScreenState extends State<ExpenseListScreen> {
             child: _isLoading 
                 ? const Center(child: CircularProgressIndicator())
                 : displayedExpenses.isEmpty
-                    ? const Center(child: Text('No expenses found for this category!'))
+                    ? Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(Icons.inventory_2_outlined, size: 80, color: Colors.grey[400]),
+                            const SizedBox(height: 16),
+                            Text('No expenses yet!', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.grey[600])),
+                            const SizedBox(height: 8),
+                            Text('Tap the + button to add your first expense.', style: TextStyle(color: Colors.grey[500])),
+                          ],
+                        ),
+                      )
                     : ListView.builder(
                         itemCount: groupedExpenses.keys.length,
                         itemBuilder: (context, index) {
