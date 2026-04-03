@@ -70,7 +70,34 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
       note: _noteController.text.trim().isNotEmpty ? _noteController.text.trim() : null,
     );
 
+    // Save Expense
     await _storageService.addExpense(newExpense);
+    
+    // --- Budget Warning Alert Logic ---
+    final budgets = await _storageService.getBudgets();
+    final budgetForCat = budgets.where((b) => b.category == _selectedCategory).toList();
+    
+    if (budgetForCat.isNotEmpty) {
+      final monthlyLimit = budgetForCat.first.monthlyLimit;
+      
+      final allExpenses = await _storageService.getExpenses();
+      final now = DateTime.now();
+      
+      final currentMonthSpent = allExpenses
+          .where((e) => e.category == _selectedCategory && e.date.month == now.month && e.date.year == now.year)
+          .fold(0.0, (sum, item) => sum + item.amount);
+          
+      if (currentMonthSpent > monthlyLimit && mounted) {
+        // Show Warning via ScaffoldMessenger which persists when we pop
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('⚠️ You have exceeded your $_selectedCategory budget!'),
+            backgroundColor: Colors.redAccent,
+            duration: const Duration(seconds: 4),
+          ),
+        );
+      }
+    }
     
     if (mounted) {
       Navigator.of(context).pop(true); // Return true to refresh parent screen
